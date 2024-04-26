@@ -11,8 +11,8 @@ need to extend or make a new calibration tool.
 For details on the camera model and camera calibration process, see
 http://docs.opencv.org/master/d9/d0c/group__calib3d.html
 
-.. autoclass:: camera_calibration.calibrator.MonoCalibrator
+.. autoclass:: camera_calibration.mono_calibrator.MonoCalibrator
     :members:
 
-.. autoclass:: camera_calibration.calibrator.StereoCalibrator
+.. autoclass:: camera_calibration.stereo_calibrator.StereoCalibrator
     :members:

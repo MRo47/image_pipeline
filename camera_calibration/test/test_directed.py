@@ -42,8 +42,9 @@ import requests
 import tarfile
 import unittest
 
-from camera_calibration.calibrator import MonoCalibrator, StereoCalibrator, \
-    Patterns, CalibrationException, ChessboardInfo, image_from_archive
+from camera_calibration.mono_calibrator import MonoCalibrator
+from camera_calibration.stereo_calibrator import StereoCalibrator
+from camera_calibration.calibrator import Patterns, CalibrationException, ChessboardInfo, image_from_archive
 
 board = ChessboardInfo()
 board.n_cols = 8

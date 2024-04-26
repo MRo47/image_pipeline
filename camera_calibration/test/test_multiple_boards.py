@@ -39,7 +39,9 @@ import unittest
 import tarfile
 import os
 
-from camera_calibration.calibrator import StereoCalibrator, ChessboardInfo, image_from_archive
+from camera_calibration.stereo_calibrator import StereoCalibrator
+from camera_calibration.calibrator import ChessboardInfo, image_from_archive
+
 
 # Large board used for PR2 calibration
 board = ChessboardInfo()

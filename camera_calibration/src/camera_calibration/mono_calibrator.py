@@ -104,6 +104,8 @@ class MonoCalibrator(Calibrator):
                 opts, ipts, self.size,
                 intrinsics_in, None, flags=self.fisheye_calib_flags)
 
+        print(f"monocular reprojection error: {reproj_err}")
+
         # R is identity matrix for monocular calibration
         self.R = numpy.eye(3, dtype=numpy.float64)
         self.P = numpy.zeros((3, 4), dtype=numpy.float64)

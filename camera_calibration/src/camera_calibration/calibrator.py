@@ -476,8 +476,11 @@ class Calibrator():
         return list(zip(self._param_names, min_params, max_params, progress))
 
     def mk_object_points(self, boards, use_board_size = False):
+        if self.pattern == Patterns.ChArUco:
+            opts = [board.charuco_board.chessboardCorners for board in boards]
+            return opts
         opts = []
-        for i, b in enumerate(boards):
+        for b in boards:
             num_pts = b.n_cols * b.n_rows
             opts_loc = numpy.zeros((num_pts, 1, 3), numpy.float32)
             for j in range(num_pts):

@@ -1139,29 +1139,28 @@ class StereoCalibrator(Calibrator):
         self.T = numpy.zeros((3, 1), dtype=numpy.float64)
         self.R = numpy.eye(3, dtype=numpy.float64)
 
-        if self.pattern == Patterns.ChArUco:
-            # TODO: implement stereo ChArUco calibration
-            raise NotImplemented("Stereo calibration not implemented for ChArUco boards")
-
         if self.camera_model == CAMERA_MODEL.PINHOLE:
             print("stereo pinhole calibration...")
             if VersionInfo.parse(cv2.__version__).major < 3:
-                cv2.stereoCalibrate(opts, lipts, ripts, self.size,
-                                   self.l.intrinsics, self.l.distortion,
-                                   self.r.intrinsics, self.r.distortion,
-                                   self.R,                            # R
-                                   self.T,                            # T
-                                   criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
-                                   flags = flags)
+                ret_values = cv2.stereoCalibrate(opts, lipts, ripts, self.size,
+                                                 self.l.intrinsics, self.l.distortion,
+                                                 self.r.intrinsics, self.r.distortion,
+                                                 self.R,                            # R
+                                                 self.T,                            # T
+                                                 criteria=(cv2.TERM_CRITERIA_EPS + \
+                                                           cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
+                                                 flags=flags)
             else:
-                cv2.stereoCalibrate(opts, lipts, ripts,
-                                   self.l.intrinsics, self.l.distortion,
-                                   self.r.intrinsics, self.r.distortion,
-                                   self.size,
-                                   self.R,                            # R
-                                   self.T,                            # T
-                                   criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
-                                   flags = flags)
+                ret_values = cv2.stereoCalibrate(opts, lipts, ripts,
+                                                 self.l.intrinsics, self.l.distortion,
+                                                 self.r.intrinsics, self.r.distortion,
+                                                 self.size,
+                                                 self.R,                            # R
+                                                 self.T,                            # T
+                                                 criteria=(cv2.TERM_CRITERIA_EPS + \
+                                                           cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
+                                                 flags=flags)
+            print(f"Stereo RMS re-projection error: {ret_values[0]}")
         elif self.camera_model == CAMERA_MODEL.FISHEYE:
             print("stereo fisheye calibration...")
             if VersionInfo.parse(cv2.__version__).major < 3:
@@ -1331,6 +1330,19 @@ class StereoCalibrator(Calibrator):
             [l2(pt3d[c + 0], pt3d[c + (cc * (cr - 1))]) / (cr - 1) for c in range(cc)])
         return sum(lengths) / len(lengths)
 
+    def update_db(self, lgray, rgray, lcorners, rcorners, lids, rids, lboard):
+        """
+        update database with images and good corners if good samples are detected
+        """
+        params = self.get_parameters(
+            lcorners, lids, lboard, (lgray.shape[1], lgray.shape[0]))
+        if self.is_good_sample(params, lcorners, lids, self.last_frame_corners, self.last_frame_ids):
+            self.db.append((params, lgray, rgray))
+            self.good_corners.append(
+                (lcorners, rcorners, lids, rids, lboard))
+            print(("*** Added sample %d, p_x = %.3f, p_y = %.3f, p_size = %.3f, skew = %.3f" %
+                tuple([len(self.db)] + params)))
+
     def handle_msg(self, msg):
         # TODO Various asserts that images have same dimension, same board detected...
         (lmsg, rmsg) = msg
@@ -1387,11 +1399,12 @@ class StereoCalibrator(Calibrator):
 
             # Add sample to database only if it's sufficiently different from any previous sample
             if lcorners is not None and rcorners is not None and len(lcorners) == len(rcorners):
-                params = self.get_parameters(lcorners, lids, lboard, (lgray.shape[1], lgray.shape[0]))
-                if self.is_good_sample(params, lcorners, lids, self.last_frame_corners, self.last_frame_ids):
-                    self.db.append( (params, lgray, rgray) )
-                    self.good_corners.append( (lcorners, rcorners, lids, rids, lboard) )
-                    print(("*** Added sample %d, p_x = %.3f, p_y = %.3f, p_size = %.3f, skew = %.3f" % tuple([len(self.db)] + params)))
+                # Add samples only with entire board in view if charuco
+                if self.pattern == Patterns.ChArUco:
+                    if len(lcorners) == lboard.charuco_board.chessboardCorners.shape[0]:
+                        self.update_db(lgray, rgray, lcorners, rcorners, lids, rids, lboard)
+                else:
+                    self.update_db(lgray, rgray, lcorners, rcorners, lids, rids, lboard)
 
         self.last_frame_corners = lcorners
         self.last_frame_ids = lids

@@ -482,7 +482,7 @@ class Calibrator():
         if self.pattern == Patterns.ChArUco:
             opts = [board.charuco_board.chessboardCorners for board in boards]
             return opts
-        for b in enumerate(boards):
+        for b in boards:
             num_pts = b.n_cols * b.n_rows
             opts_loc = numpy.zeros((num_pts, 1, 3), numpy.float32)
             for j in range(num_pts):

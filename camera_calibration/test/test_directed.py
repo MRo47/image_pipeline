@@ -33,7 +33,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import cv2
-
 import collections
 import copy
 import numpy

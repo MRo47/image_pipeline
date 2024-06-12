@@ -45,9 +45,16 @@ from camera_calibration.calibrator import (
     CalibrationException,
     CAMERA_MODEL,
     Patterns,
-    MonoDrawable,
+    ImageDrawable,
     image_from_archive
 )
+
+
+class MonoDrawable(ImageDrawable):
+    def __init__(self):
+        ImageDrawable.__init__(self)
+        self.scrib = None
+        self.linear_error = -1.0
 
 
 class MonoCalibrator(Calibrator):

@@ -49,9 +49,18 @@ from camera_calibration.calibrator import (
     CalibrationException,
     CAMERA_MODEL,
     Patterns,
-    StereoDrawable,
+    ImageDrawable,
     image_from_archive
 )
+
+
+class StereoDrawable(ImageDrawable):
+    def __init__(self):
+        ImageDrawable.__init__(self)
+        self.lscrib = None
+        self.rscrib = None
+        self.epierror = -1
+        self.dim = -1
 
 # TODO Replicate MonoCalibrator improvements in stereo
 

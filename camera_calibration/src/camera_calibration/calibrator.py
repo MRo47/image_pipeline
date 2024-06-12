@@ -771,19 +771,3 @@ class ImageDrawable():
 
     def __init__(self):
         self.params = None
-
-
-class MonoDrawable(ImageDrawable):
-    def __init__(self):
-        ImageDrawable.__init__(self)
-        self.scrib = None
-        self.linear_error = -1.0
-
-
-class StereoDrawable(ImageDrawable):
-    def __init__(self):
-        ImageDrawable.__init__(self)
-        self.lscrib = None
-        self.rscrib = None
-        self.epierror = -1
-        self.dim = -1

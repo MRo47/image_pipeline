@@ -378,7 +378,7 @@ class Calibrator():
             # We end up having to check both ways anyway
             self._boards = boards
         else:
-            raise CalibratorException(
+            raise CalibrationException(
                 'pattern must be one of: Chessboard, Circles, ACircles, or ChArUco')
 
         # Set to true after we perform calibration
